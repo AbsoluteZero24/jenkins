@@ -10,8 +10,31 @@ metadata:
 spec:
   selector: 
     app: jenkins-server
-  type: NodePort  
+  type: LoadBalancer  
   ports:
-    - port: 8080
+    - port: 80
       targetPort: 8080
       nodePort: 32000
+
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
+  name: jenkins-ingress
+  namespace: devops-tools
+spec:
+  ingressClassName: nginx
+  rules:
+  - host: jenkins.scisi.com
+    http:
+      paths:
+      - pathType: Prefix
+        path: "/"
+        backend:
+          service:
+            name: jenkins-service
+            port:
+              number: 80

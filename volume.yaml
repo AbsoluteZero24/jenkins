@@ -1,19 +1,9 @@
-kind: StorageClass
-apiVersion: storage.k8s.io/v1
-metadata:
-  name: local-storage
-provisioner: kubernetes.io/no-provisioner
-volumeBindingMode: WaitForFirstConsumer
-
----
 apiVersion: v1
 kind: PersistentVolume
 metadata:
   name: jenkins-pv-volume
-  labels:
-    type: local
 spec:
-  storageClassName: local-storage
+  storageClassName: manual
   claimRef:
     name: jenkins-pv-claim
     namespace: devops-tools
@@ -21,8 +11,9 @@ spec:
     storage: 10Gi
   accessModes:
     - ReadWriteOnce
-  local:
-    path: /mnt
+  nfs:
+    path: "/mnt/kubernetes-pool/jenkins"
+    server : 192.168.100.106
   nodeAffinity:
     required:
       nodeSelectorTerms:
@@ -39,7 +30,7 @@ metadata:
   name: jenkins-pv-claim
   namespace: devops-tools
 spec:
-  storageClassName: local-storage
+  storageClassName: manual
   accessModes:
     - ReadWriteOnce
   resources:
